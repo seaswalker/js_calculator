@@ -19,10 +19,28 @@ var Calculator = (function() {
 			//输入内容显示元素
 			showInput: null,
 			//上一步计算结果显示区域
-			preStep: null,
-			//二元运算符
-			binaryOperator: null
+			preStep: null
 		},
+        //操作符映射，为了解决显示时使用X而运算时使用*的问题(示例)
+        operatorMapper: {
+            "+": "+",
+            "-": "-",
+            "×": "*",
+            "%": "%",
+            "÷": "/"
+        },
+        //运算符栈
+        operatorStack: [],
+        //如果为true，那么接下来输入的数字需要覆盖在showInput上，而不是追加
+        isOverride: false,
+        //辅助判断运算符的优先级
+        operatorPriority: {
+            "+": 1,
+            "-": 1,
+            "*": 2,
+            "%": 2,
+            "/": 2
+        },
         /**
          * 初始化缓存对象(cal.cache)
          */
@@ -48,7 +66,7 @@ var Calculator = (function() {
                 cal.cache.showInput.innerHTML = "0";
             });
             var lis = document.getElementsByTagName("li"), key;
-            for (var i = 0;i < lis.length;i ++) {
+            for (var i = 0, l = lis.length;i < l;i ++) {
                 key = lis[i];
                 //按键鼠标悬浮变色效果
                 cal.addEvent(key, "mouseover", function() {
@@ -114,15 +132,11 @@ var Calculator = (function() {
                         break;
                     case "+":
                     case "-":
-                    case "%":
-                       cal. binaryOperate(value);
-                        break;
-                    case "×":
-                        //乘法和触发不可以直接传递value，因为计算机不认识X和÷
-                        cal.binaryOperate("*");
-                        break;
                     case "÷":
-                        cal.binaryOperate("/");
+                    case "×":
+                    case "%":
+                        cal.isOverride = true;
+                        cal.binaryOperate(cal.operatorMapper[value]);
                         break;
                     case "=":
                         cal.calculate();
@@ -139,40 +153,42 @@ var Calculator = (function() {
         },
         /**
          * 二元操作(+ - * / %)
-         * 存在两种情况:
-         * a) 如果之前输入过操作符，那么首先计算第一步操作
-         * b) 如果之前没有，那么需要把第一个操作数和运算符显示到pre-step
          * @param operator 操作符
          */
         binaryOperate: function(operator) {
-            if (cal.cache.binaryOperator == null) {
-                cal.cache.preStep.innerHTML = cal.cache.showInput.innerText + " " + operator;
-            } else {
-                //计算上一步
-                cal.cache.preStep.innerHTML = eval(cal.cache.preStep.innerText + cal.cache.showInput.innerText) + " " + operator;
+            var preOperator = cal.operatorStack.pop(),
+                si = cal.cache.showInput.innerHTML;
+            if (preOperator == null) {
+                cal.cache.preStep.innerHTML = (si + " " + operator);
             }
-            cal.cache.binaryOperator = operator;
-            cal.cache.showInput.innerHTML = "0";
+            //当前运算符不是第一个并且优先级<=前一个运算符时需要运算出之前一步的结果显示在showInput上
+            else if (cal.operatorPriority[operator] <= cal.operatorPriority[preOperator]) {
+                cal.cache.showInput.innerHTML = cal.checkLength(eval(cal.cache.preStep.innerHTML + si));
+                cal.cache.preStep.innerHTML += (" " + si + " " + operator);
+            } else {
+                cal.cache.preStep.innerHTML += (" " + si + " " + operator);
+            }
+            //将操作符入栈
+            cal.operatorStack.push(operator);
         },
         /**
-         * [calculate 按下=时计算最终结果]
+         * 按下=时计算最终结果
          */
         calculate: function() {
             cal.cache.showInput.innerHTML = cal.checkLength(eval(cal.cache.preStep.innerText + cal.cache.showInput.innerText));
             cal.cache.preStep.innerHTML = "&nbsp;";
-            cal.cache.binaryOperator = null;
+            //运算符栈复位
+            cal.operatorStack = [];
+            cal.isOverride = true;
         },
         /**
-         * 确保结果长度不大于13
+         * 确保结果长度不大于13,如果超出，以科学计数法形式显示(小数点后7位)
          * @param value 需要检查的结果
          */
         checkLength: function(value) {
-            var valueStr = value + "";
-            if (valueStr.length > 12) {
-                //转化为2位小数的指数计数法
-                value = value.toExponential(2);
-            }
-            return value;
+            //注意取出尾部的0
+            var valueStr = (value + "").replace(/0+$/, "");
+            return valueStr.length > 12 ? value.toExponential(7) : valueStr;
         },
         /**
          * 显示输入的内容
@@ -182,14 +198,26 @@ var Calculator = (function() {
         showInput: function(value) {
             var oldValue = cal.cache.showInput.innerText;
             var newValue = oldValue;
-            if (oldValue === "0" && value !== ".") {
-                newValue = value;
-            }
-            //只支持13位数
-            else if (oldValue.length < 13) {
-                newValue += value;
+            if (cal.isOverride) {
+                //既然是覆盖，那么如果直接输入.那么肯定是0.x
+                if (value === ".") {
+                    newValue = "0.";
+                } else {
+                    newValue = value;
+                }
+            } else if (oldValue.length < 13) {
+                if (oldValue === "0") {
+                    if (value === ".") {
+                        newValue = "0.";
+                    } else {
+                        newValue = value;
+                    }
+                }  else {
+                    newValue += value;
+                }
             }
             cal.cache.showInput.innerHTML = newValue;
+            cal.isOverride = false;
         },
         /**
          * 工具方法，为element添加事件处理函数
