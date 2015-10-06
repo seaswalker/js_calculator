@@ -7,52 +7,130 @@
 	<script src="js/cal.js"></script>
 </head>
 <body>
-	<!--主体区域-->
-	<div class="main">
+	<!--标准型-->
+	<div class="standard-main" id="std-main">
 		<div class="title">
 			&nbsp;&nbsp;计算器
 		</div>
 		<!--结果显示区域-->
 		<div class="result">
-			<div style="height: 20px;"></div>
+            <!--显示类型信息-->
+			<div class="type" id="std-show-bar">
+                ☰&nbsp;&nbsp;&nbsp;Stanard
+            </div>
 			<!--上一步的结果-->
-			<div class="pre" id="pre-step">
+			<div class="pre" id="std-pre-step">
 				&nbsp;
 			</div>
 			<!--第二个/运算结果-->
-			<div class="second" id="show-input">
+			<div class="second" id="std-show-input">
 				0
 			</div>
 		</div>
-		<ul class="top-symbol">
-			<li>%</li>
-			<li>√</li>
-			<li>x²</li>
-			<li>½</li>
+		<ul id="std-top-symbol">
+			<li value="17">%</li>
+			<li value="18">√</li>
+			<li value="19"><img src="images/x_2.png" style="height: 18px;"/></li>
+			<li value="20"><img src="images/1_x.png"/></li>
 		</ul>
 		<!--数字和符号-->
-		<ul class="num-symbol">
-			<li id="ce">CE</li>
-			<li id="clear-all">C</li>
-			<li id="back">Back</li>
-			<li>÷</li>
-			<li>7</li>
-			<li>8</li>
-			<li>9</li>
-			<li>×</li>
-			<li>4</li>
-			<li>5</li>
-			<li>6</li>
-			<li>-</li>
-			<li>1</li>
-			<li>2</li>
-			<li>3</li>
-			<li>+</li>
-			<li>±</li>
-			<li>0</li>
-			<li>.</li>
-			<li>=</li>
+		<ul id="std-num-symbol">
+			<li id="std-ce">CE</li>
+			<li id="std-clear-all">C</li>
+			<li id="std-back">Back</li>
+			<li value="16">÷</li>
+			<li class= "number" value="7">7</li>
+			<li class= "number" value="8">8</li>
+			<li class= "number" value="9">9</li>
+			<li value="15">×</li>
+			<li class= "number" value="4">4</li>
+			<li class= "number" value="5">5</li>
+			<li class= "number" value="6">6</li>
+			<li value="14">-</li>
+			<li class= "number" value="1">1</li>
+			<li class= "number" value="2">2</li>
+			<li class= "number" value="3">3</li>
+			<li value="13">+</li>
+			<li value="11">±</li>
+			<li class= "number" value="0">0</li>
+			<li value="10">.</li>
+			<li value="12">=</li>
 		</ul>
+        <!--侧边栏，选择计算器类型-->
+        <ul class="type-bar" id="std-type-bar">
+            <li class="active">标准型</li>
+            <li value="2">科学型</li>
+        </ul>
 	</div>
+    <!--科学型-->
+    <div class="science-main" id="sci-main">
+        <div class="title">
+            &nbsp;&nbsp;计算器
+        </div>
+        <!--结果显示区域-->
+        <div class="sci-result">
+            <!--显示类型信息-->
+            <div class="type" id="sci-show-bar">
+                ☰&nbsp;&nbsp;&nbsp;Science
+            </div>
+            <!--上一步的结果-->
+            <div class="pre" id="sci-pre-step">
+                &nbsp;
+            </div>
+            <!--第二个/运算结果-->
+            <div class="second" id="sci-show-input">0</div>
+        </div>
+        <!--上面的3行运算符-->
+        <ul id="sci-top-symbol">
+            <li value="21">(</li>
+            <li value="22">)</li>
+            <li value="23"><img src="images/x_y_sqrt.png" style="height: 18px;width: 22px;"/></li>
+            <li value="24">n!</li>
+            <li value="25">Mod</li>
+            <li value="19"><img src="images/x_2.png" style="height: 18px;"/></li>
+            <li value="26"><img src="images/x_y.png" style="height: 18px;"/></li>
+            <li value="27">sin</li>
+            <li value="28">cos</li>
+            <li value="29">tan</li>
+            <li value="30"><img src="images/10_x.png" /></li>
+            <li value="31">log</li>
+            <li value="32">sinh</li>
+            <li value="33">cosh</li>
+            <li value="34">tanh</li>
+        </ul>
+        <!--数字和符号-->
+        <ul id="sci-num-symbol">
+            <li value="35">π</li>
+            <li id="sci-ce">CE</li>
+            <li id="sci-clear-all">C</li>
+            <li id="sci-back">Back</li>
+            <li value="16">÷</li>
+            <li value="18">√</li>
+            <li value="7" class= "number">7</li>
+            <li value="8" class= "number">8</li>
+            <li value="9" class= "number">9</li>
+            <li value="15">×</li>
+            <li value="17">%</li>
+            <li value="4" class= "number">4</li>
+            <li value="5" class= "number">5</li>
+            <li value="6" class= "number">6</li>
+            <li value="14">-</li>
+            <li value="20"><img src="images/1_x.png"/></li>
+            <li value="1" class= "number">1</li>
+            <li value="2" class= "number">2</li>
+            <li value="3" class= "number">3</li>
+            <li value="13">+</li>
+            <li value="36">↑</li>
+            <li value="11">±</li>
+            <li value="0" class= "number">0</li>
+            <li value="10">.</li>
+            <li value="12">=</li>
+        </ul>
+        <!--侧边栏，选择计算器类型-->
+        <ul class="type-bar" id="sci-type-bar">
+            <li value="1">标准型</li>
+            <li class="active">科学型</li>
+        </ul>
+    </div>
 </body>
 </html>

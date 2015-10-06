@@ -1,19 +1,31 @@
+/*各界面共用部分开始*/
 * {
 	font-family: "微软雅黑";
 }
-.main {
-	width: 350px;
-	height: 500px;
+.standard-main, .science-main {
 	background-color: #F2F2F2;
 	margin: 40px auto 0px;
 	box-shadow: 0px 0px 15px #4D4D4D;
+}
+ul {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+}
+li {
+    float:  left;
+    text-align: center;
+    cursor: pointer;
+}
+li img {
+    height: 14px;
 }
 .title {
 	height: 30px;
 	line-height: 30px;
 }
 .result {
-	height: 150px;
+	height: 120px;
 	text-align: right;
 }
 .second {
@@ -25,25 +37,79 @@
 	color: #A7A7A7;
 	padding-right: 10px;
 }
-ul {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
+/*计算器类型*/
+.type {
+    height: 20px;
+    text-align: left;
+    margin-left: 10px;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
 }
-.top-symbol {
+/*类型选择侧边栏*/
+.type-bar {
+    display: none;
+    height: 90px;
+    width: 100px;
+    position: absolute;
+    top: 110px;
+    background-color: #E6E6E6;
+}
+.type-bar li {
+    float: left;
+    width: 100px;
+    text-align: center;
+    line-height: 30px;
+}
+.active {
+    background-color: #CFCFCF;
+}
+/*数字加粗*/
+.number {
+    font-weight: bold;
+}
+/*共用部分结束*/
+
+/*计算器标准版界面开始*/
+.standard-main {
+    display: block;
+	width: 350px;
+	height: 480px;
+}
+#std-top-symbol {
 	border-top: 1px #A7A7A7 solid;
 	height: 52px;
 }
-li {
-	float:  left;
-	line-height: 52px;
-	width: 85px;
-	text-align: center;
-	cursor: pointer;
-}
-.num-symbol {
+#std-num-symbol {
 	background-color: #E6E6E6;
 	height: 270px;
 	font-size: 20px;
-	font-weight: bold;
 }
+#std-top-symbol li, #std-num-symbol li {
+    line-height: 52px;
+    width: 87.5px;
+}
+/*标准界面结束*/
+
+/*科学型界面开始*/
+.science-main {
+    display: none;
+    width: 350px;
+}
+.sci-result {
+    height: 120px;
+    text-align: right;
+}
+#sci-top-symbol {
+    border-top: 1px #A7A7A7 solid;
+    height: 135px;
+}
+#sci-top-symbol li, #sci-num-symbol li {
+    line-height: 45px;
+    width: 70px;
+}
+#sci-num-symbol {
+    height: 235px;
+    background-color: #E6E6E6;
+}
+/*科学型界面结束*/
