@@ -2,7 +2,7 @@
 * {
 	font-family: "微软雅黑";
 }
-.standard-main, .science-main {
+.standard-main, .science-main, .programmer-main {
 	background-color: #F2F2F2;
 	margin: 40px auto 0px;
 	box-shadow: 0px 0px 15px #4D4D4D;
@@ -72,7 +72,6 @@ li img {
 
 /*计算器标准版界面开始*/
 .standard-main {
-    display: block;
 	width: 350px;
 	height: 480px;
 }
@@ -113,3 +112,47 @@ li img {
     background-color: #E6E6E6;
 }
 /*科学型界面结束*/
+
+/*程序员型界面开始*/
+.programmer-main {
+    display: none;
+    width: 350px;
+}
+.pro-result {
+    height: 220px;
+    text-align: right;
+}
+#pro-top-symbol {
+    border-top: 1px #A7A7A7 solid;
+    height: 45px;
+}
+#pro-top-symbol li {
+    line-height: 45px;
+    width: 58px;
+}
+#pro-num-symbol li {
+    line-height: 45px;
+    width: 70px;
+}
+#pro-num-symbol {
+    height: 235px;
+    background-color: #E6E6E6;
+}
+/*四个进制*/
+#pro-scales {
+    margin-left: 20px;
+}
+#pro-scales div {
+    text-align: left;
+    margin-top: 5px;
+    cursor: pointer;
+}
+/*当前使用的进制*/
+.scale-active {
+    color: cornflowerblue;
+}
+/*按键不可用*/
+.disable-btn {
+    color: #CACACA;
+}
+/*程序员型界面结束*/
