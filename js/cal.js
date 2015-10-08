@@ -55,9 +55,9 @@ var Calculator = (function() {
           43: 'D',
           44: 'E',
           45: 'F',
-          46: 'And',
-          47: 'Or',
-          48: 'Not'
+          46: '&',
+          47: '|',
+          48: '~'
         },
         //映射用于显示的操作符，比如计算时用*，而显示时x更好
         operatorFacade: {
@@ -67,7 +67,9 @@ var Calculator = (function() {
             16: '÷',
             17: '%',
             23: 'yroot',
-            26: '^'
+            26: '^',
+            46: '&',
+            47: '|'
         },
         //当前计算器的类型1 --> 标准型, 2-->科学型， 3-->程序员型，默认标准型
         type: 1,
@@ -96,7 +98,9 @@ var Calculator = (function() {
 			//输入内容显示元素
 			showInput: null,
 			//上一步计算结果显示区域
-			preStep: null
+			preStep: null,
+            //显示四种进制数值的span，只在程序员型有效
+            scaleSpans: null
 		},
         /**
          * 获取cache.showInput的内容
@@ -144,17 +148,21 @@ var Calculator = (function() {
         floatPattern: /^-?\d+\.\d+$/,
         //科学计数法校验
         scientificPattern: /^\d+\.\d+e(\+|-)\d+$/,
+        //校验16进制数字
+        hexPattern: /^[0-9A-F]+$/,
         //辅助判断运算符的优先级
         operatorPriority: {
             ")": 0,
-            "+": 1,
-            "-": 1,
-            "*": 2,
-            "%": 2,
-            "/": 2,
-            "^": 3,
-            "yroot": 3,
-            "(": 4
+            "|": 1,
+            "&": 2,
+            "+": 3,
+            "-": 3,
+            "*": 4,
+            "%": 4,
+            "/": 4,
+            "^": 5,
+            "yroot": 5,
+            "(": 6
         },
         /**
          * 初始化缓存对象(cal.cache)
@@ -163,6 +171,9 @@ var Calculator = (function() {
             var prefix = cal.typePrefix[cal.type];
             cal.cache.showInput = document.getElementById(prefix + "show-input");
             cal.cache.preStep = document.getElementById(prefix + "pre-step");
+            if (cal.type == 3) {
+                cal.cache.scaleSpans = document.getElementById("pro-scales").getElementsByTagName("span");
+            }
         },
         //各种事件监听函数
         listeners: {
@@ -171,28 +182,28 @@ var Calculator = (function() {
              */
             mouseHoverListener: function(e) {
                 var event = e || window.event;
-                event.target.style.backgroundColor = cal.constants.mouseHoverColor;
+                event.currentTarget.style.backgroundColor = cal.constants.mouseHoverColor;
             },
             /**
              * 鼠标从上排符号中移出的变色效果
              */
             firstMouseOutListener: function(e) {
                 var event = e || window.event;
-                event.target.style.backgroundColor = cal.constants.firstMouseOutColor;
+                event.currentTarget.style.backgroundColor = cal.constants.firstMouseOutColor;
             },
             /**
              * 鼠标从下排数字、符号中移出的变色效果
              */
             mouseOutListener: function(e) {
                 var event = e || window.event;
-                event.target.style.backgroundColor = cal.constants.mouseOutColor;
+                event.currentTarget.style.backgroundColor = cal.constants.mouseOutColor;
             },
             /**
              * 按键按下事件监听
              */
             keyPressListener: function(e) {
                 var event = e || window.event;
-                cal.handleKey(event.target.value);
+                cal.handleKey(event.currentTarget.value);
             },
             /**
              * 显示/隐藏计算器类型选择栏
@@ -210,7 +221,7 @@ var Calculator = (function() {
              */
             switchTypeListener: function(e) {
                 var event = e || window.event;
-                cal.switchType(parseInt(event.target.value));
+                cal.switchType(parseInt(event.currentTarget.value));
             },
             /**
              * 切换进制(程序员专用)
@@ -320,17 +331,18 @@ var Calculator = (function() {
         handleKey: function(value) {
             var keyCode = parseInt(value);
             //如果是一个数字或者小数点，直接显示出来
-            if (keyCode < 11) {
+            if (keyCode < 11 || (keyCode > 39 && keyCode < 46)) {
                 cal.showInput(cal.keyCodes[keyCode]);
                 if (cal.type === 3) {
                     //如果是程序员型，那么需要同步显示4中进制的值
-                    cal.showScales();
+                    cal.showScales(cal.getShowInput());
                 }
             } else {
                 switch (keyCode) {
                     //正负号
                     case 11:
                         cal.unaryOperate(function(oldValue) {
+                            oldValue += "";
                             if (oldValue === "0") {
                                 return [oldValue];
                             }
@@ -432,6 +444,15 @@ var Calculator = (function() {
                             return [Math.PI];
                         });
                         break;
+                    //按位取反(~)
+                    case 48:
+                        cal.unaryOperate(function(si) {
+                            var result = eval("~" + si);
+                            //显示四种进制的数值
+                            cal.showScales(result);
+                            return [result];
+                        });
+                        break;
                     //二元运算符开始
                     //加、减、乘、除、取余，运算比较简单，直接利用eval即可求值
                     case 13:
@@ -443,6 +464,9 @@ var Calculator = (function() {
                     case 26:
                     //开任意次方根
                     case 23:
+                    //And Or
+                    case 46:
+                    case 47:
                         if (cal.isPreInputBinaryOperator) {
                             break;
                         }
@@ -522,6 +546,10 @@ var Calculator = (function() {
          * @param facade 运算符门面，用于显示在preStep中
          */
         binaryOperate: function(operator, facade) {
+            //如果是程序员型，那么需要重置scalesSpan
+            if (cal.type === 3) {
+                cal.resetScales();
+            }
             var si = cal.getShowInput(),
                 pi = cal.getPreStep();
             if (cal.isNumber(si)) {
@@ -540,14 +568,14 @@ var Calculator = (function() {
                     if (op > pp) {
                         cal.operatorStack.push(preOp);
                     }
-                    //两者的优先级相等并且高于1，那么只需要计算一步
-                    else if (op > 1 && op === pp) {
+                    //两者的优先级相等并且高于3(加减)，那么只需要计算一步
+                    else if (op > 3 && op === pp) {
                         cal.operatorStack.push(preOp);
-                        cal._travelStack(1);
+                        cal.travelStack(1);
                     }
                     else {
                         cal.operatorStack.push(preOp);
-                        cal.setShowInput(cal.checkLength(cal._travelStack(null, op)));
+                        cal.setShowInput(cal.checkLength(cal.travelStack(null, op)));
                     }
                 }
                 cal.operatorStack.push(operator);
@@ -563,10 +591,14 @@ var Calculator = (function() {
                 var si = cal.getShowInput(), result;
                 if (cal.isNumber(si)) {
                     cal.operandStack.push(si);
-                    result = cal.checkLength(cal._travelStack());
+                    result = cal.checkLength(cal.travelStack());
                     cal.setShowInput(result);
                     cal.preResult = result;
                     cal.setPreStep("&nbsp;");
+                    //程序员型需要把计算结果的四种进制值显示出来
+                    if (cal.type === 3) {
+                        cal.showScales(result);
+                    }
                     cal.isOverride = true;
                 }
                 cal._reset();
@@ -582,7 +614,7 @@ var Calculator = (function() {
          * @return Number
          * @private
          */
-        _travelStack: function(level, minPri) {
+        travelStack: function(level, minPri) {
             var op, f, s,
                 //result取操作数栈栈顶，因为防止在下列情况9 X (6 + 时出现undefined
                 result = cal.operandStack[cal.operandStack.length - 1],
@@ -599,10 +631,33 @@ var Calculator = (function() {
                 f = cal.operandStack.pop();
                 if (op === "^") {
                     result = Math.pow(f, s);
-                } else if (op === "yroot") {
+                }
+                else if (op === "yroot") {
                     result = Math.pow(f, 1 / s);
-                } else {
-                    result = eval(f + op + s);
+                }
+                //+ - X / %5中操作
+                else {
+                    //如果是程序员型，那么需要考虑进制的问题
+                    if (cal.type === 3) {
+                        var scale = cal.currentScale, fi, si;
+                        if (scale === 10) {
+                            result = eval(f + op + s);
+                        } else if (scale === 16) {
+                            fi = parseInt(f, 16);
+                            si = parseInt(s, 16);
+                            result = eval(fi + op + si).toString(16);
+                        } else if (scale === 8) {
+                            fi = parseInt(f, 8);
+                            si = parseInt(s, 8);
+                            result = eval(fi + op + si).toString(8);
+                        } else {
+                            fi = parseInt(f, 2);
+                            si = parseInt(s, 2);
+                            result = eval(fi + op + si).toString(2);
+                        }
+                    } else {
+                        result = eval(f + op + s);
+                    }
                 }
                 cal.operandStack.push(result);
             }
@@ -651,12 +706,27 @@ var Calculator = (function() {
         //CE
         ce: function() {
             cal.setShowInput("0");
+            if (cal.type === 3) {
+                cal.resetScales();
+            }
         },
         //C
         clear: function() {
             cal.setShowInput("0");
             cal.setPreStep("&nbsp;");
             cal._reset();
+            if (cal.type === 3) {
+                cal.resetScales();
+            }
+        },
+        /**
+         * 清空四个进制的值
+         * @private
+         */
+        resetScales: function() {
+            for (var i = 0;i < 4;i ++) {
+                cal.cache.scaleSpans[i].innerHTML = "0";
+            }
         },
         back: function() {
             var oldValue = cal.cache.showInput.innerText;
@@ -664,10 +734,50 @@ var Calculator = (function() {
         },
         /**
          * 当计算器类型是程序员时，需要同步显示四种进制的值
+         * @param num 需要显示的数字
          */
-        showScales: function() {
-            var si = cal.getShowInput();
-            //TODO
+        showScales: function(num) {
+            var result = cal.calculateScales(num),
+                spans = cal.cache.scaleSpans;
+            for (var i = 0;i < 4;++ i) {
+                spans[i].innerHTML = result[i];
+            }
+        },
+        /**
+         * 根据当前进制分别计算出四种进制的值
+         * @param num 需要计算的值
+         * @return Array 共4个元素，依次为16、10、8、2进制的值
+         */
+        calculateScales: function(num) {
+            var scale = cal.currentScale,
+                result = [], i;
+            if (scale === 10) {
+                i = parseInt(num);
+                result[0] = i.toString(16);
+                result[1] = i;
+                result[2] = i.toString(8);
+                result[3] = i.toString(2);
+            } else if (scale === 16) {
+                //先转成10进制，然后再转成其它进制
+                i = parseInt(num, 16);
+                result[0] = num;
+                result[1] = i;
+                result[2] = i.toString(8);
+                result[3] = i.toString(2);
+            } else if (scale === 8) {
+                i = parseInt(num, 8);
+                result[0] = i.toString(16);
+                result[1] = i;
+                result[2] = num;
+                result[3] = i.toString(2);
+            } else {
+                i = parseInt(num, 2);
+                result[0] = i.toString(16);
+                result[1] = i;
+                result[2] = i.toString(8);
+                result[3] = num;
+            }
+            return result;
         },
         /**
          * 校验字符串是否是数字
@@ -675,7 +785,7 @@ var Calculator = (function() {
          * @return 是返回true
          */
         isNumber: function(str) {
-            return cal.isInteger(str) || cal.isFloat(str) || cal.isScientific(str);
+            return cal.isInteger(str) || cal.isFloat(str) || cal.isScientific(str) || cal.isHex(str);
         },
         /**
          * 校验是否是整数
@@ -699,12 +809,19 @@ var Calculator = (function() {
             return str.match(cal.scientificPattern);
         },
         /**
+         * 是否是16进制数字
+         * @param str
+         */
+        isHex: function(str) {
+            return str.match(cal.hexPattern);
+        },
+        /**
          * 显示输入的内容
          * 用于相应数字/小数点按键
          * @param value 按键的内容，不是keyCode
          */
         showInput: function(value) {
-            var oldValue = cal.cache.showInput.innerText;
+            var oldValue = cal.getShowInput();
             var newValue = oldValue;
             if (cal.isOverride) {
                 //既然是覆盖，那么如果直接输入.那么肯定是0.x
