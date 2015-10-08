@@ -629,36 +629,7 @@ var Calculator = (function() {
                 }
                 s = cal.operandStack.pop();
                 f = cal.operandStack.pop();
-                if (op === "^") {
-                    result = Math.pow(f, s);
-                }
-                else if (op === "yroot") {
-                    result = Math.pow(f, 1 / s);
-                }
-                //+ - X / %5中操作
-                else {
-                    //如果是程序员型，那么需要考虑进制的问题
-                    if (cal.type === 3) {
-                        var scale = cal.currentScale, fi, si;
-                        if (scale === 10) {
-                            result = eval(f + op + s);
-                        } else if (scale === 16) {
-                            fi = parseInt(f, 16);
-                            si = parseInt(s, 16);
-                            result = eval(fi + op + si).toString(16);
-                        } else if (scale === 8) {
-                            fi = parseInt(f, 8);
-                            si = parseInt(s, 8);
-                            result = eval(fi + op + si).toString(8);
-                        } else {
-                            fi = parseInt(f, 2);
-                            si = parseInt(s, 2);
-                            result = eval(fi + op + si).toString(2);
-                        }
-                    } else {
-                        result = eval(f + op + s);
-                    }
-                }
+                result = cal._stackHelper(f, s, op);
                 cal.operandStack.push(result);
             }
             return result;
@@ -677,13 +648,7 @@ var Calculator = (function() {
                 while (op !== "(" && op != null) {
                     s = cal.operandStack.pop();
                     f = cal.operandStack.pop();
-                    if (op === "^") {
-                        result = Math.pow(f, s);
-                    } else if (op === "yroot") {
-                        result = Math.pow(f, 1 / s);
-                    } else {
-                        result = eval(f + op + s);
-                    }
+                    result = cal._stackHelper(f, s, op);
                     cal.operandStack.push(result);
                     op = cal.operatorStack.pop();
                 }
@@ -691,6 +656,48 @@ var Calculator = (function() {
                 // 并且执行=时也是根据showInput内容计算的
                 cal.setShowInput(cal.checkLength(cal.operandStack.pop()));
             }
+        },
+        /**
+         * 辅助进行一次栈运算
+         * @param f 第一个操作数
+         * @param s 第二个操作数
+         * @param op 运算符
+         * @return 返回运算结果
+         * @private
+         */
+        _stackHelper: function(f, s, op) {
+            var result;
+            if (op === "^") {
+                result = Math.pow(f, s);
+            }
+            else if (op === "yroot") {
+                result = Math.pow(f, 1 / s);
+            }
+            //+ - X / %5中操作
+            else {
+                //如果是程序员型，那么需要考虑进制的问题
+                if (cal.type === 3) {
+                    var scale = cal.currentScale, fi, si;
+                    if (scale === 10) {
+                        result = eval(f + op + s);
+                    } else if (scale === 16) {
+                        fi = parseInt(f, 16);
+                        si = parseInt(s, 16);
+                        result = eval(fi + op + si).toString(16);
+                    } else if (scale === 8) {
+                        fi = parseInt(f, 8);
+                        si = parseInt(s, 8);
+                        result = eval(fi + op + si).toString(8);
+                    } else {
+                        fi = parseInt(f, 2);
+                        si = parseInt(s, 2);
+                        result = eval(fi + op + si).toString(2);
+                    }
+                } else {
+                    result = eval(f + op + s);
+                }
+            }
+            return result;
         },
         /**
          * 确保结果长度不大于13,如果超出，以科学计数法形式显示(小数点后7位)
