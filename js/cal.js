@@ -1,63 +1,63 @@
-window.onload = function() {
+window.onload = function () {
     Calculator.initCache();
     Calculator.initListeners();
 };
 
 //全局计算器对象
-var Calculator = (function() {
-	var cal = {
+var Calculator = (function () {
+    var cal = {
         //计算器按键编码
         keyCodes: {
-          0: '0',
-          1: '1',
-          2: '2',
-          3: '3',
-          4: '4',
-          5: '5',
-          6: '6',
-          7: '7',
-          8: '8',
-          9: '9',
-          10: '.',
-          11: '±',
-          12: '=',
-          13: '+',
-          14: '-',
-          15: '*',
-          16: '/',
-          17: '%',
-          18: '√',
-          19: 'x2',
-          20: '1/x',
-          21: '(',
-          22: ')',
-          23: 'yroot',
-          24: 'n!',
-          25: 'Exp',
-          26: '^',
-          27: 'sin',
-          28: 'cos',
-          29: 'tan',
-          30: 'powten',
-          31: 'log',
-          32: 'sinh',
-          33: 'cosh',
-          34: 'tanh',
-          35: 'π',
-          36: '↑',
-          37: 'CE',
-          38: 'C',
-          39: 'Back',
-          //以下是程序员型特有的按键
-          40: 'A',
-          41: 'B',
-          42: 'C',
-          43: 'D',
-          44: 'E',
-          45: 'F',
-          46: '&',
-          47: '|',
-          48: '~'
+            0: '0',
+            1: '1',
+            2: '2',
+            3: '3',
+            4: '4',
+            5: '5',
+            6: '6',
+            7: '7',
+            8: '8',
+            9: '9',
+            10: '.',
+            11: '±',
+            12: '=',
+            13: '+',
+            14: '-',
+            15: '*',
+            16: '/',
+            17: '%',
+            18: '√',
+            19: 'x2',
+            20: '1/x',
+            21: '(',
+            22: ')',
+            23: 'yroot',
+            24: 'n!',
+            25: 'Exp',
+            26: '^',
+            27: 'sin',
+            28: 'cos',
+            29: 'tan',
+            30: 'powten',
+            31: 'log',
+            32: 'sinh',
+            33: 'cosh',
+            34: 'tanh',
+            35: 'π',
+            36: '↑',
+            37: 'CE',
+            38: 'C',
+            39: 'Back',
+            //以下是程序员型特有的按键
+            40: 'A',
+            41: 'B',
+            42: 'C',
+            43: 'D',
+            44: 'E',
+            45: 'F',
+            46: '&',
+            47: '|',
+            48: '~'
         },
         //映射用于显示的操作符，比如计算时用*，而显示时x更好
         operatorFacade: {
@@ -85,45 +85,45 @@ var Calculator = (function() {
             2: false,
             3: false
         },
-		//常量
-		constants: {
-			//鼠标悬停时的颜色
-			mouseHoverColor: "#CFCFCF",
-			//计算器第一行和下面其它行的颜色是不同的，这个是第一行的背景颜色
-			firstMouseOutColor: "#F2F2F2",
-			//剩余各行的背景颜色
-			mouseOutColor: "#E6E6E6"
-		},
-		cache: {
-			//输入内容显示元素
-			showInput: null,
-			//上一步计算结果显示区域
-			preStep: null,
+        //常量
+        constants: {
+            //鼠标悬停时的颜色
+            mouseHoverColor: "#CFCFCF",
+            //计算器第一行和下面其它行的颜色是不同的，这个是第一行的背景颜色
+            firstMouseOutColor: "#F2F2F2",
+            //剩余各行的背景颜色
+            mouseOutColor: "#E6E6E6"
+        },
+        cache: {
+            //输入内容显示元素
+            showInput: null,
+            //上一步计算结果显示区域
+            preStep: null,
             //显示四种进制数值的span，只在程序员型有效
             scaleSpans: null
-		},
+        },
         /**
          * 获取cache.showInput的内容
          * @return String
          */
-        getShowInput: function() {
+        getShowInput: function () {
             return cal.cache.showInput.innerHTML;
         },
         /**
          * 设置showInput的值
          * @param value
          */
-        setShowInput: function(value) {
+        setShowInput: function (value) {
             cal.cache.showInput.innerHTML = value;
         },
         /**
          * 获取cache.preStep的内容
          * @return String
          */
-        getPreStep: function() {
+        getPreStep: function () {
             return cal.cache.preStep.innerHTML;
         },
-        setPreStep: function(value) {
+        setPreStep: function (value) {
             cal.cache.preStep.innerHTML = value;
         },
         //操作数栈
@@ -167,7 +167,7 @@ var Calculator = (function() {
         /**
          * 初始化缓存对象(cal.cache)
          */
-        initCache: function() {
+        initCache: function () {
             var prefix = cal.typePrefix[cal.type];
             cal.cache.showInput = document.getElementById(prefix + "show-input");
             cal.cache.preStep = document.getElementById(prefix + "pre-step");
@@ -180,35 +180,35 @@ var Calculator = (function() {
             /**
              * 鼠标悬停在按键上的变色效果
              */
-            mouseHoverListener: function(e) {
+            mouseHoverListener: function (e) {
                 var event = e || window.event;
                 event.currentTarget.style.backgroundColor = cal.constants.mouseHoverColor;
             },
             /**
              * 鼠标从上排符号中移出的变色效果
              */
-            firstMouseOutListener: function(e) {
+            firstMouseOutListener: function (e) {
                 var event = e || window.event;
                 event.currentTarget.style.backgroundColor = cal.constants.firstMouseOutColor;
             },
             /**
              * 鼠标从下排数字、符号中移出的变色效果
              */
-            mouseOutListener: function(e) {
+            mouseOutListener: function (e) {
                 var event = e || window.event;
                 event.currentTarget.style.backgroundColor = cal.constants.mouseOutColor;
             },
             /**
              * 按键按下事件监听
              */
-            keyPressListener: function(e) {
+            keyPressListener: function (e) {
                 var event = e || window.event;
                 cal.handleKey(event.currentTarget.value);
             },
             /**
              * 显示/隐藏计算器类型选择栏
              */
-            toggleTypeBarListener: function() {
+            toggleTypeBarListener: function () {
                 var bar = document.getElementById(cal.typePrefix[cal.type] + "type-bar");
                 if (bar.style.display === "block") {
                     bar.style.display = "none";
@@ -219,21 +219,21 @@ var Calculator = (function() {
             /**
              * 切换计算器类型监听器
              */
-            switchTypeListener: function(e) {
+            switchTypeListener: function (e) {
                 var event = e || window.event;
                 cal.switchType(parseInt(event.currentTarget.value));
             },
             /**
              * 切换进制(程序员专用)
              */
-            switchScaleListener: function(e) {
+            switchScaleListener: function (e) {
                 var event = e || window.event;
                 var scales = document.getElementById("pro-scales").getElementsByTagName("div"),
                     //此处应该使用currentTarget属性，因为target属性在绑定事件的元素有子元素的情况下会返回子元素
                     scale = parseInt(event.currentTarget.getAttribute("scale")),
                     oldScale = cal.currentScale;
                 //切换选中样式
-                for (var i = 0, l = scales.length;i < l;++ i) {
+                for (var i = 0, l = scales.length; i < l; ++i) {
                     scales[i].removeAttribute("class");
                 }
                 event.currentTarget.setAttribute("class", "scale-active");
@@ -276,7 +276,7 @@ var Calculator = (function() {
              * 初始化第一排操运算符事件监听
              * @private
              */
-            _initFirstRowListeners: function() {
+            _initFirstRowListeners: function () {
                 var lis = document.getElementById(cal.typePrefix[cal.type] + "top-symbol").getElementsByTagName("li");
                 cal.rebuildButtons(lis, cal.listeners.firstMouseOutListener);
             },
@@ -284,7 +284,7 @@ var Calculator = (function() {
              * 初始化第二排运算符事件监听
              * @private
              */
-            _initSecondRowListeners: function() {
+            _initSecondRowListeners: function () {
                 var lis = document.getElementById(cal.typePrefix[cal.type] + "num-symbol").getElementsByTagName("li");
                 cal.rebuildButtons(lis, cal.listeners.mouseOutListener);
                 if (cal.type === 3) {
@@ -293,8 +293,8 @@ var Calculator = (function() {
                 }
             }
         },
-		//初始化事件监听器
-		initListeners: function() {
+        //初始化事件监听器
+        initListeners: function () {
             var prefix = cal.typePrefix[cal.type];
             //设置上排运算符事件监听,如果是程序员型，因为默认是10进制，而上排是16进制数字，所以不需要设置事件监听
             if (cal.type < 3) {
@@ -308,7 +308,7 @@ var Calculator = (function() {
             var bar = document.getElementById(prefix + "type-bar");
             lis = bar.getElementsByTagName("li");
             var li;
-            for (var i = 0, l = lis.length;i < l;++ i) {
+            for (var i = 0, l = lis.length; i < l; ++i) {
                 li = lis[i];
                 //非当前类型才有必要绑定事件
                 if (li.className !== "active") {
@@ -317,18 +317,19 @@ var Calculator = (function() {
             }
             //加载程序员型特有的
             if (cal.type === 3) {
-                var scales = document.getElementById("pro-scales").getElementsByTagName("div"), scale;
-                for (i = 0, l = scales.length;i < l;++ i) {
+                var scales = document.getElementById("pro-scales").getElementsByTagName("div"),
+                    scale;
+                for (i = 0, l = scales.length; i < l; ++i) {
                     scale = scales[i];
                     cal.addEvent(scale, "click", cal.listeners.switchScaleListener);
                 }
             }
-		},
+        },
         /**
          * 相应按键按下事件
          * @param value 按键的value值(即其keyCode)
          */
-        handleKey: function(value) {
+        handleKey: function (value) {
             var keyCode = parseInt(value);
             //如果是一个数字或者小数点，直接显示出来
             if (keyCode < 11 || (keyCode > 39 && keyCode < 46)) {
@@ -341,7 +342,7 @@ var Calculator = (function() {
                 switch (keyCode) {
                     //正负号
                     case 11:
-                        cal.unaryOperate(function(oldValue) {
+                        cal.unaryOperate(function (oldValue) {
                             oldValue += "";
                             if (oldValue === "0") {
                                 return [oldValue];
@@ -353,27 +354,27 @@ var Calculator = (function() {
                             }
                         });
                         break;
-                    //开根下
+                        //开根下
                     case 18:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.sqrt(si), "sqrt"];
                         });
                         break;
-                    //平方
+                        //平方
                     case 19:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.pow(si, 2), "sqr"];
                         });
                         break;
-                    //取倒数
+                        //取倒数
                     case 20:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [si === 0 ? "0不能作为被除数" : 1 / si, "1/"];
                         });
                         break;
-                    //阶乘
+                        //阶乘
                     case 24:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             if (si < 0) {
                                 si = (0 - si);
                             }
@@ -383,88 +384,88 @@ var Calculator = (function() {
                             return [cal.fact(si), "fact"];
                         });
                         break;
-                    //Exp 转为科学计数法表示
+                        //Exp 转为科学计数法表示
                     case 25:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [si.toExponential(7)];
                         });
                         break;
-                    //sin
+                        //sin
                     case 27:
-                        cal.unaryOperate(function(si) {
-                           return [Math.sin(si), "sin"];
+                        cal.unaryOperate(function (si) {
+                            return [Math.sin(si), "sin"];
                         });
                         break;
-                    //cos
+                        //cos
                     case 28:
-                        cal.unaryOperate(function(si) {
-                           return [Math.cos(si), "cos"];
+                        cal.unaryOperate(function (si) {
+                            return [Math.cos(si), "cos"];
                         });
                         break;
-                    //tan
+                        //tan
                     case 29:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.tan(si), "tan"];
                         });
                         break;
-                    //10的x次方
+                        //10的x次方
                     case 30:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.pow(10, si), "powten"];
                         });
                         break;
-                    //log
+                        //log
                     case 31:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             //js的Math.log是e的对数，Windows计算器是10的对数，此处参考Windows
                             return [Math.log10(si), "log"];
                         });
                         break;
-                    //sinh(双曲正弦函数)
+                        //sinh(双曲正弦函数)
                     case 32:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.sinh(si), "sinh"];
                         });
                         break;
-                    //cosh(双曲余弦函数)
+                        //cosh(双曲余弦函数)
                     case 33:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.cosh(si), "cosh"];
                         });
                         break;
-                    //tanh(双曲余切函数)
+                        //tanh(双曲余切函数)
                     case 34:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.tanh(si), "tanh"];
                         });
                         break;
-                    //π
+                        //π
                     case 35:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             return [Math.PI];
                         });
                         break;
-                    //按位取反(~)
+                        //按位取反(~)
                     case 48:
-                        cal.unaryOperate(function(si) {
+                        cal.unaryOperate(function (si) {
                             var result = eval("~" + si);
                             //显示四种进制的数值
                             cal.showScales(result);
                             return [result];
                         });
                         break;
-                    //二元运算符开始
-                    //加、减、乘、除、取余，运算比较简单，直接利用eval即可求值
+                        //二元运算符开始
+                        //加、减、乘、除、取余，运算比较简单，直接利用eval即可求值
                     case 13:
                     case 14:
                     case 15:
                     case 16:
                     case 17:
-                    //x的y次方
+                        //x的y次方
                     case 26:
-                    //开任意次方根
+                        //开任意次方根
                     case 23:
-                    //And Or
+                        //And Or
                     case 46:
                     case 47:
                         if (cal.isPreInputBinaryOperator) {
@@ -477,28 +478,28 @@ var Calculator = (function() {
                     case 12:
                         cal.calculate();
                         break;
-                    //ce
+                        //ce
                     case 37:
                         cal.ce();
                         break;
-                    //c
+                        //c
                     case 38:
                         cal.clear();
                         break;
-                    //back
+                        //back
                     case 39:
                         cal.back();
                         break;
-                    // (
+                        // (
                     case 21:
                         cal.setPreStep(cal.getPreStep() + " (");
                         cal.operatorStack.push("(");
                         break;
-                    // )
+                        // )
                     case 22:
                         cal.rightTag();
                         break;
-                    //向上箭头，把上次计算结果显示出来
+                        //向上箭头，把上次计算结果显示出来
                     case 36:
                         cal.setShowInput(cal.preResult);
                         break;
@@ -511,8 +512,9 @@ var Calculator = (function() {
          * 会向operation传递一个参数si，为用户当前的输入，同时operation函数应该返回一个数组，数组的第一个
          * 元素是计算的结果，第二个元素示例sqrt，第二个参数可选
          */
-        unaryOperate: function(operation) {
-            var si = cal.getShowInput(), result;
+        unaryOperate: function (operation) {
+            var si = cal.getShowInput(),
+                result;
             if (cal.isInteger(si)) {
                 result = operation(parseInt(si));
             } else if (cal.isFloat(si) || cal.isScientific(si)) {
@@ -545,7 +547,7 @@ var Calculator = (function() {
          * @param operator 操作符
          * @param facade 运算符门面，用于显示在preStep中
          */
-        binaryOperate: function(operator, facade) {
+        binaryOperate: function (operator, facade) {
             //如果是程序员型，那么需要重置scalesSpan
             if (cal.type === 3) {
                 cal.resetScales();
@@ -558,8 +560,8 @@ var Calculator = (function() {
                 //设置preStep有三种情况:第一种上一步不是一元操作，那么需要设置si，第二种是一元操作，那么由于一元操作会把
                 //函数表达式(比如sqrt(100))设置到preStep，所以不需要再次设置si
                 //第三种就是如果最后一位是右括号，那么也不需要设置si
-                cal.setPreStep(cal.getPreStep() + ((cal.isPreInputUnaryOperator || pi.charAt(pi.length - 1) === ")")
-                    ? (" " + facade) : (" " + si + " " + facade)));
+                cal.setPreStep(cal.getPreStep() + ((cal.isPreInputUnaryOperator || pi.charAt(pi.length - 1) === ")") ?
+                    (" " + facade) : (" " + si + " " + facade)));
                 var preOp = cal.operatorStack.pop();
                 if (preOp != null) {
                     var op = cal.operatorPriority[operator],
@@ -572,8 +574,7 @@ var Calculator = (function() {
                     else if (op > 3 && op === pp) {
                         cal.operatorStack.push(preOp);
                         cal.travelStack(1);
-                    }
-                    else {
+                    } else {
                         cal.operatorStack.push(preOp);
                         cal.setShowInput(cal.checkLength(cal.travelStack(null, op)));
                     }
@@ -586,9 +587,10 @@ var Calculator = (function() {
         /**
          * 按下=时计算最终结果
          */
-        calculate: function() {
+        calculate: function () {
             if (!cal.isPreInputEquals) {
-                var si = cal.getShowInput(), result;
+                var si = cal.getShowInput(),
+                    result;
                 if (cal.isNumber(si)) {
                     cal.operandStack.push(si);
                     result = cal.checkLength(cal.travelStack());
@@ -614,13 +616,13 @@ var Calculator = (function() {
          * @return Number
          * @private
          */
-        travelStack: function(level, minPri) {
+        travelStack: function (level, minPri) {
             var op, f, s,
                 //result取操作数栈栈顶，因为防止在下列情况9 X (6 + 时出现undefined
                 result = cal.operandStack[cal.operandStack.length - 1],
                 l = level || cal.operatorStack.length,
                 p = minPri || 0;
-            for (var i = 0;i < l;++ i) {
+            for (var i = 0; i < l; ++i) {
                 op = cal.operatorStack.pop();
                 //遇到minPri或左括号立即停止，左括号也需要再次压入，因为只有一个右括号才能抵消一个左括号
                 if (cal.operatorPriority[op] < p || op === "(") {
@@ -637,7 +639,7 @@ var Calculator = (function() {
         /**
          * 输入了一个右括号
          */
-        rightTag: function() {
+        rightTag: function () {
             var si = cal.getShowInput();
             if (cal.isNumber(si)) {
                 cal.setPreStep(cal.getPreStep() + (" " + si + " )"));
@@ -665,19 +667,19 @@ var Calculator = (function() {
          * @return 返回运算结果
          * @private
          */
-        _stackHelper: function(f, s, op) {
+        _stackHelper: function (f, s, op) {
             var result;
             if (op === "^") {
                 result = Math.pow(f, s);
-            }
-            else if (op === "yroot") {
+            } else if (op === "yroot") {
                 result = Math.pow(f, 1 / s);
             }
             //+ - X / %5中操作
             else {
                 //如果是程序员型，那么需要考虑进制的问题
                 if (cal.type === 3) {
-                    var scale = cal.currentScale, fi, si;
+                    var scale = cal.currentScale,
+                        fi, si;
                     if (scale === 10) {
                         result = eval(f + op + s);
                     } else if (scale === 16) {
@@ -703,7 +705,7 @@ var Calculator = (function() {
          * 确保结果长度不大于13,如果超出，以科学计数法形式显示(小数点后7位)
          * @param value 需要检查的结果
          */
-        checkLength: function(value) {
+        checkLength: function (value) {
             var valueStr = value + "";
             if (cal.isFloat(valueStr)) {
                 valueStr = valueStr.replace(/0+$/, "");
@@ -711,14 +713,14 @@ var Calculator = (function() {
             return valueStr.length > 12 ? value.toExponential(7) : valueStr;
         },
         //CE
-        ce: function() {
+        ce: function () {
             cal.setShowInput("0");
             if (cal.type === 3) {
                 cal.resetScales();
             }
         },
         //C
-        clear: function() {
+        clear: function () {
             cal.setShowInput("0");
             cal.setPreStep("&nbsp;");
             cal._reset();
@@ -730,12 +732,12 @@ var Calculator = (function() {
          * 清空四个进制的值
          * @private
          */
-        resetScales: function() {
-            for (var i = 0;i < 4;i ++) {
+        resetScales: function () {
+            for (var i = 0; i < 4; i++) {
                 cal.cache.scaleSpans[i].innerHTML = "0";
             }
         },
-        back: function() {
+        back: function () {
             var oldValue = cal.cache.showInput.innerText;
             cal.setShowInput(oldValue.length < 2 ? "0" : oldValue.substring(0, oldValue.length - 1));
         },
@@ -743,10 +745,10 @@ var Calculator = (function() {
          * 当计算器类型是程序员时，需要同步显示四种进制的值
          * @param num 需要显示的数字
          */
-        showScales: function(num) {
+        showScales: function (num) {
             var result = cal.calculateScales(num),
                 spans = cal.cache.scaleSpans;
-            for (var i = 0;i < 4;++ i) {
+            for (var i = 0; i < 4; ++i) {
                 spans[i].innerHTML = result[i];
             }
         },
@@ -755,9 +757,10 @@ var Calculator = (function() {
          * @param num 需要计算的值
          * @return Array 共4个元素，依次为16、10、8、2进制的值
          */
-        calculateScales: function(num) {
+        calculateScales: function (num) {
             var scale = cal.currentScale,
-                result = [], i;
+                result = [],
+                i;
             if (scale === 10) {
                 i = parseInt(num);
                 result[0] = i.toString(16);
@@ -791,35 +794,35 @@ var Calculator = (function() {
          * @param str
          * @return 是返回true
          */
-        isNumber: function(str) {
+        isNumber: function (str) {
             return cal.isInteger(str) || cal.isFloat(str) || cal.isScientific(str) || cal.isHex(str);
         },
         /**
          * 校验是否是整数
          * @param str
          */
-        isInteger: function(str) {
+        isInteger: function (str) {
             return str.match(cal.intPattern);
         },
         /**
          * 校验是否是小数
          * @param str
          */
-        isFloat: function(str) {
+        isFloat: function (str) {
             return str.match(cal.floatPattern);
         },
         /**
          * 是否是科学计数法
          * @param str
          */
-        isScientific: function(str) {
+        isScientific: function (str) {
             return str.match(cal.scientificPattern);
         },
         /**
          * 是否是16进制数字
          * @param str
          */
-        isHex: function(str) {
+        isHex: function (str) {
             return str.match(cal.hexPattern);
         },
         /**
@@ -827,7 +830,7 @@ var Calculator = (function() {
          * 用于相应数字/小数点按键
          * @param value 按键的内容，不是keyCode
          */
-        showInput: function(value) {
+        showInput: function (value) {
             var oldValue = cal.getShowInput();
             var newValue = oldValue;
             if (cal.isOverride) {
@@ -858,7 +861,7 @@ var Calculator = (function() {
          * 切换计算器类型
          * @param type int 要切换到的类型
          */
-        switchType: function(type) {
+        switchType: function (type) {
             //关闭选择栏
             var oldPrefix = cal.typePrefix[cal.type];
             document.getElementById(oldPrefix + "type-bar").style.display = "none";
@@ -877,7 +880,7 @@ var Calculator = (function() {
          * 重置各个标志变量以及操作栈
          * @private
          */
-        _reset: function() {
+        _reset: function () {
             cal.operandStack = [];
             cal.operatorStack = [];
             cal.isPreInputBinaryOperator = false;
@@ -890,7 +893,7 @@ var Calculator = (function() {
          * @param name name事件名称(不含on)
          * @param handler 事件处理函数
          */
-        addEvent: function(element, name, handler) {
+        addEvent: function (element, name, handler) {
             if (window.addEventListener) {
                 element.addEventListener(name, handler);
             } else if (window.attachEvent) {
@@ -903,7 +906,7 @@ var Calculator = (function() {
          * @param name 事件名，没有"on"
          * @param handler 需要移除的处理函数
          */
-        removeEvent: function(element, name, handler) {
+        removeEvent: function (element, name, handler) {
             if (window.removeEventListener) {
                 element.removeEventListener(name, handler);
             } else if (window.detachEvent) {
@@ -916,11 +919,12 @@ var Calculator = (function() {
          * @param attr
          * @param root 开始查找的起始节点，可选，默认document
          */
-        getElementsByAttribute: function(tag, attr, root) {
+        getElementsByAttribute: function (tag, attr, root) {
             var parent = root || document,
                 result = [];
-            var arr = parent.getElementsByTagName(tag), a;
-            for (var i = 0, l = arr.length;i < l;++ i) {
+            var arr = parent.getElementsByTagName(tag),
+                a;
+            for (var i = 0, l = arr.length; i < l; ++i) {
                 a = arr[i];
                 if (a.getAttribute(attr) != null) {
                     //这个写法...
@@ -934,14 +938,15 @@ var Calculator = (function() {
          * @param n 操作数 int
          * @return
          */
-        fact: (function() {
+        fact: (function () {
             //缓存
             var cache = [1];
+
             function factorial(n) {
                 var result = cache[n - 1];
                 if (result == null) {
                     result = 1;
-                    for (var i = 1;i <= n;++ i) {
+                    for (var i = 1; i <= n; ++i) {
                         result *= i;
                     }
                     cache[n - 1] = result;
@@ -955,9 +960,9 @@ var Calculator = (function() {
          * @param lis 按钮集合
          * @param mouseOutListener function 鼠标移出时采用哪个监听函数，取决于按钮的位置(上排/下排)
          */
-        disableButtons: function(lis, mouseOutListener) {
+        disableButtons: function (lis, mouseOutListener) {
             var li;
-            for (var i = 0, l = lis.length;i < l;++ i) {
+            for (var i = 0, l = lis.length; i < l; ++i) {
                 li = lis[i];
                 li.setAttribute("class", "disable-btn");
                 cal.removeEvent(li, "click", cal.listeners.keyPressListener);
@@ -970,9 +975,9 @@ var Calculator = (function() {
          * @param lis 按钮集合
          * @param mouseOutListener function 鼠标移出时采用哪个监听函数，取决于按钮的位置(上排/下排)
          */
-        rebuildButtons: function(lis, mouseOutListener) {
+        rebuildButtons: function (lis, mouseOutListener) {
             var li;
-            for (var i = 0, l = lis.length;i < l;++ i) {
+            for (var i = 0, l = lis.length; i < l; ++i) {
                 li = lis[i];
                 li.removeAttribute("class");
                 cal.addEvent(li, "click", cal.listeners.keyPressListener);
@@ -980,6 +985,6 @@ var Calculator = (function() {
                 cal.addEvent(li, "mouseover", cal.listeners.mouseHoverListener);
             }
         }
-	};
-	return cal;
+    };
+    return cal;
 })();
